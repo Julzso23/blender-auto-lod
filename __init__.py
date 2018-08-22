@@ -148,10 +148,27 @@ class GenerateLodsFolder(Operator):
         for path in input_files:
             if path in [path.value for path in settings.import_excludes.values()]:
                 continue
+
             bpy.ops.import_scene.fbx(filepath = path)
+
+            for obj in context.selected_objects:
+                try:
+                    bpy.ops.object.transform_apply(rotation = True)
+                except RuntimeError:
+                    pass
+
+                obj.scale = (1, 1, 1)
+                generate_lods(context, obj)
+
+            path_base = os.path.basename(path)
+            bpy.ops.export_scene.fbx(filepath = os.path.join(settings.output_mesh_folder, path_base), object_types = set(["MESH"]))
+
+            for obj in context.selected_objects:
+                bpy.ops.object.delete()
+
         return {"FINISHED"}
 
-def generate_lods(object):
+def generate_lods(context, object):
     for i in range(context.scene.auto_lod_settings.lod_count):
         object_copy = object.copy()
         object_copy.name = object.name + "_LOD" + str(i + 1)
