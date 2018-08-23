@@ -174,7 +174,7 @@ def generate_lods(context, object):
         object_copy.name = object.name + "_LOD" + str(i + 1)
         context.scene.objects.link(object_copy)
         modifier = object_copy.modifiers.new("DecimateMod", "DECIMATE")
-        modifier.ratio = 0.5
+        modifier.ratio = 0.5 / (i + 1)
 
     object.name += "_LOD0"
 
